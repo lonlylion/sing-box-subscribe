@@ -73,65 +73,76 @@
   "outbounds": [
     {
       "tag":"Proxy",
-     "type":"selector",
+      "type":"selector",
       "outbounds":[ "auto", "direct", "{all}"
       ]
     },
     {
       "tag":"OpenAI",
+      "type":"selector",
       "outbounds":[ "Others"
       ],
       "default": "Others"
     },
     {
       "tag":"Google",
+      "type":"selector",
       "outbounds":[ "Others"
       ]
     },
     {
       "tag":"Telegram",
+      "type":"selector",
       "outbounds":[ "Others"
       ]
     },
     {
       "tag":"Twitter",
+      "type":"selector",
       "outbounds":[ "Others"
       ]
     },
     {
       "tag":"Facebook",
+      "type":"selector",
       "outbounds":[ "Others"
       ]
     },
     {
       "tag":"BiliBili",
-      "outbounds":[ "direct", "Others"
+      "type":"selector",
+      "outbounds":[ "direct"
       ]
     },
     {
       "tag":"Bahamut",
-      "outbounds":[ "Others"
+      "type":"selector",
+      "outbounds":[ "Proxy"
       ]
     },
     {
       "tag":"Spotify",
+      "type":"selector",
       "outbounds":[ "Others"
       ],
       "default": "Others"
     },
     {
       "tag":"TikTok",
+      "type":"selector",
       "outbounds":[ "Others"
       ],
       "default": "Others"
     },
     {
       "tag":"Netflix",
+      "type":"selector",
       "outbounds":[ "Others"
       ]
     },
     {
       "tag":"Disney+",
+      "type":"selector",
       "outbounds":[ "Others"
       ]
     },
@@ -155,13 +166,14 @@
     },
     {
       "tag":"Streaming",
+      "type":"selector",
       "outbounds":[ "Others"
       ]
     },
     {
       "tag":"Global",
       "type":"selector",
-      "outbounds":[  "Others", "direct"
+      "outbounds":[ "direct","Others"
       ]
     },
     {
@@ -180,7 +192,6 @@
     },
     {
       "tag":"auto",
-      "type":"selector",
       "type":"urltest",
       "outbounds":[ "{all}"
       ],
