@@ -12,6 +12,7 @@ from datetime import datetime, timedelta
 app = Flask(__name__, template_folder='../templates')  # 指定模板文件夹的路径
 app.secret_key = 'sing-box'  # 替换为实际的密钥
 data_json = {}
+LATEST_TEMPLATE = 'sb-config-1.14'
 os.environ['TEMP_JSON_DATA'] = '{"subscribes":[{"url":"URL","tag":"tag_1","enabled":true,"emoji":1,"subgroup":"","prefix":"","User-Agent":"v2rayng"},{"url":"URL","tag":"tag_2","enabled":false,"emoji":0,"subgroup":"命名/named","prefix":"❤️","User-Agent":"clashmeta"}],"auto_set_outbounds_dns":{"proxy":"","direct":""},"save_config_path":"./config.json","auto_backup":false,"exclude_protocol":"ssr","config_template":"","Only-nodes":false}'
 data_json['TEMP_JSON_DATA'] = '{"subscribes":[{"url":"URL","tag":"tag_1","enabled":true,"emoji":1,"subgroup":"","prefix":"","User-Agent":"v2rayng"},{"url":"URL","tag":"tag_2","enabled":false,"emoji":0,"subgroup":"命名/named","prefix":"❤️","User-Agent":"clashmeta"}],"auto_set_outbounds_dns":{"proxy":"","direct":""},"save_config_path":"./config.json","auto_backup":false,"exclude_protocol":"ssr","config_template":"","Only-nodes":false}'
 
@@ -43,7 +44,7 @@ def get_template_list():
     config_template_dir = 'config_template'  # 配置模板文件夹路径
     template_files = os.listdir(config_template_dir)  # 获取文件夹中的所有文件
     template_list = [os.path.splitext(file)[0] for file in template_files if file.endswith('.json')]  # 移除扩展名并过滤出以.json结尾的文件
-    template_list.sort()  # 对文件名进行排序
+    template_list.sort(key=lambda name: (name != LATEST_TEMPLATE, name))  # 最新兼容模板优先
     return template_list
 
 # 读取providers.json文件的内容，如果有临时 JSON 数据则使用它

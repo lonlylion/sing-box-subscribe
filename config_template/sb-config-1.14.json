@@ -412,6 +412,7 @@
     "default_domain_resolver": {
       "server": "local"
     },
+    "default_http_client": "default",
     "auto_detect_interface": true,
     "final": "Proxy",
     "rules": [

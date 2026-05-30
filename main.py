@@ -10,6 +10,7 @@ from gh_proxy_helper import set_gh_proxy
 parsers_mod = {}
 providers = None
 color_code = [31, 32, 33, 34, 35, 36, 91, 92, 93, 94, 95, 96]
+LATEST_TEMPLATE = 'sb-config-1.14'
 
 
 def loop_color(text):
@@ -32,7 +33,7 @@ def get_template():
     template_files = os.listdir(template_dir)  # 获取文件夹中的所有文件
     template_list = [os.path.splitext(file)[0] for file in template_files if
                      file.endswith('.json')]  # 移除扩展名并过滤出以.json结尾的文件
-    template_list.sort()  # 对文件名进行排序
+    template_list.sort(key=lambda name: (name != LATEST_TEMPLATE, name))  # 最新兼容模板优先
     return template_list
 
 
@@ -365,32 +366,34 @@ def set_proxy_rule_dns(config):
     dns_rules = config['dns']['rules']
     asod = providers["auto_set_outbounds_dns"]
     for rule in config_rules:
-        if rule['outbound'] not in ['block', 'dns-out']:
-            if rule['outbound'] != 'direct':
-                outbounds_dns_template = \
-                    list(filter(lambda server: server['tag'] == asod["proxy"], config['dns']['servers']))[0]
-                dns_obj = outbounds_dns_template.copy()
-                dns_obj['tag'] = rule['outbound'] + '_dns'
-                dns_obj['detour'] = rule['outbound']
-                if dns_obj not in outbound_dns:
-                    outbound_dns.append(dns_obj)
-            if rule.get('type') and rule['type'] == 'logical':
-                dns_rule_obj = {
-                    'type': 'logical',
-                    'mode': rule['mode'],
-                    'rules': [],
-                    'server': rule['outbound'] + '_dns' if rule['outbound'] != 'direct' else asod["direct"]
-                }
-                for _rule in rule['rules']:
-                    child_rule = pro_dns_from_route_rules(_rule)
-                    if child_rule:
-                        dns_rule_obj['rules'].append(child_rule)
-                if len(dns_rule_obj['rules']) == 0:
-                    dns_rule_obj = None
-            else:
-                dns_rule_obj = pro_dns_from_route_rules(rule)
-            if dns_rule_obj:
-                dns_rules.append(dns_rule_obj)
+        outbound = rule.get('outbound')
+        if not outbound or outbound in ['block', 'dns-out']:
+            continue
+        if outbound != 'direct':
+            outbounds_dns_template = \
+                list(filter(lambda server: server['tag'] == asod["proxy"], config['dns']['servers']))[0]
+            dns_obj = outbounds_dns_template.copy()
+            dns_obj['tag'] = outbound + '_dns'
+            dns_obj['detour'] = outbound
+            if dns_obj not in outbound_dns:
+                outbound_dns.append(dns_obj)
+        if rule.get('type') and rule['type'] == 'logical':
+            dns_rule_obj = {
+                'type': 'logical',
+                'mode': rule['mode'],
+                'rules': [],
+                'server': outbound + '_dns' if outbound != 'direct' else asod["direct"]
+            }
+            for _rule in rule['rules']:
+                child_rule = pro_dns_from_route_rules(_rule)
+                if child_rule:
+                    dns_rule_obj['rules'].append(child_rule)
+            if len(dns_rule_obj['rules']) == 0:
+                dns_rule_obj = None
+        else:
+            dns_rule_obj = pro_dns_from_route_rules(rule)
+        if dns_rule_obj:
+            dns_rules.append(dns_rule_obj)
     # 清除重复规则
     _dns_rules = []
     for dr in dns_rules:
@@ -402,7 +405,7 @@ def set_proxy_rule_dns(config):
 
 def pro_dns_from_route_rules(route_rule):
     dns_route_same_list = ["inbound", "ip_version", "network", "protocol", 'domain', 'domain_suffix', 'domain_keyword',
-                           'domain_regex', 'geosite', "source_geoip", "source_ip_cidr", "source_port",
+                           'domain_regex', "source_ip_cidr", "source_port",
                            "source_port_range", "port", "port_range", "process_name", "process_path", "package_name",
                            "user", "user_id", "clash_mode", "invert"]
     dns_rule_obj = {}
