@@ -9,7 +9,11 @@ import shutil
 import tempfile  # 导入 tempfile 模块
 from datetime import datetime, timedelta
 
-app = Flask(__name__, template_folder='../templates')  # 指定模板文件夹的路径
+# 计算模板文件夹的绝对路径
+current_dir = os.path.dirname(os.path.abspath(__file__))
+template_folder = os.path.join(os.path.dirname(current_dir), 'templates')
+
+app = Flask(__name__, template_folder=template_folder)  # 指定模板文件夹的路径
 app.secret_key = 'sing-box'  # 替换为实际的密钥
 data_json = {}
 LATEST_TEMPLATE = 'sb-config-1.14'
